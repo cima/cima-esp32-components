@@ -47,6 +47,10 @@ namespace cima::system::network {
         //TODO ISR service must be extracted from here as it is one for all
         int isrFlags = ESP_INTR_FLAG_LEVEL1 | ESP_INTR_FLAG_SHARED;
         esp_err_t isrError = gpio_install_isr_service(isrFlags);
+        if(isrError != ESP_OK){
+            LOGGER.error("GPIO interrupt handling service installation failed: 0x%x", isrError);
+            return;
+        }
         
         esp_err_t handlerError = gpio_isr_handler_add(rf433ReceiveGpioPin, &Rf433Controller::rf433ReceiveHandlerWrapper, this);
         LOGGER.debug("RF 433 MHz handler installation status: 0x%x", handlerError);
