@@ -66,6 +66,8 @@ namespace cima::system::network {
         if (event_id == WIFI_EVENT_STA_START) {
             auto connectresult = esp_wifi_connect();
             LOG.info("Connection attempt %d ended with code: %d", connectionAttempts, connectresult);
+        } else if (event_id == WIFI_EVENT_STA_CONNECTED) {
+            LOG.info("Connection attempt %d ended with WIFI_EVENT_STA_CONNECTED", connectionAttempts);
         } else if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
             if (connectionAttempts < EXAMPLE_ESP_MAXIMUM_RETRY) {
                 auto connectresult = esp_wifi_connect();
