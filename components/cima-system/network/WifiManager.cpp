@@ -36,7 +36,7 @@ namespace cima::system::network {
 
         //TODO official example creates netif but with some warning.... 
         // (seems that they just renaming the interface, ommitting for now)
-        //tcpip_adapter_init();
+        esp_netif_init();
 
         //esp_wifi_init(); //TODO prozkoumat jak se to má dělat https://github.com/espressif/esp-idf/blob/master/examples/common_components/protocol_examples_common/wifi_connect.c#L109
         ESP_ERROR_CHECK(esp_wifi_init(&firmwareWifiConfig));
@@ -45,7 +45,7 @@ namespace cima::system::network {
         ESP_ERROR_CHECK(esp_event_loop_create_default());
         
         //TODO offered by copilot
-        //esp_netif_create_default_wifi_sta();
+        esp_netif_t* netInterface = esp_netif_create_default_wifi_sta();
         
         esp_wifi_set_default_wifi_sta_handlers();
         ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &WifiManager::wifiEventHandlerWrapper, this));

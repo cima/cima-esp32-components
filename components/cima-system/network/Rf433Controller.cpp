@@ -3,7 +3,8 @@
 #include <iostream>
 #include <sstream>
 
-#include <sys/time.h>
+//#include <sys/time.h> //TODO it is crahing
+#include <esp_timer.h>
 
 namespace cima::system::network {
     
@@ -150,11 +151,12 @@ namespace cima::system::network {
     void Rf433Controller::rf433ReceiveHandler(){
         // ATTENTION: This is IRS call. No monkey bussiness. Just forward over some parralel primitives.
 
-        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        //const long time = esp_timer_get_time();
-        const long long time = (tv.tv_sec * 1000LL) + (tv.tv_usec / 1000LL);
-
+        //FIXME it is crashing without clocks being set
+        //struct timeval tv;
+        //gettimeofday(&tv, NULL);
+        //const long long time = (tv.tv_sec * 1000LL) + (tv.tv_usec / 1000LL);
+        
+        const long time = esp_timer_get_time();
         const unsigned int duration = time - lastInterruptTime;       
 
         //--------------------------
