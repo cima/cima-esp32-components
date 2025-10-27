@@ -65,8 +65,8 @@ namespace cima::system::network {
             networkIterator = this->credentials.begin();
         }
         initWifiStationConfig(networkIterator->getSsid(), networkIterator->getPassphrase());
-        ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifiConfig) );
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
+        ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifiConfig) );
         ESP_ERROR_CHECK(esp_wifi_start());//TODO now it shall be called only once???
 
         esp_err_t ret = esp_wifi_connect();
