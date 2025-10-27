@@ -34,29 +34,46 @@ namespace cima::system::network {
 
         LOG.info("Connecting...");
 
-        esp_netif_init();
+        //TODO official example creates netif but with some warning.... 
+        // (seems that they just renaming the interface, ommitting for now)
+        //tcpip_adapter_init();
 
-        ESP_ERROR_CHECK(esp_event_loop_create_default());
+        //esp_wifi_init(); //TODO prozkoumat jak se to má dělat https://github.com/espressif/esp-idf/blob/master/examples/common_components/protocol_examples_common/wifi_connect.c#L109
         ESP_ERROR_CHECK(esp_wifi_init(&firmwareWifiConfig));
-
+        
+        // TODO this shall be somwhere centrally managed as it is global loop, not just wifi loop
+        ESP_ERROR_CHECK(esp_event_loop_create_default());
+        
+        //TODO offered by copilot
+        //esp_netif_create_default_wifi_sta();
+        
+        esp_wifi_set_default_wifi_sta_handlers();
         ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &WifiManager::wifiEventHandlerWrapper, this));
         ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &WifiManager::ipEventHandlerWrapper, this));
-        
         //TODO now for try - latermaybe split into individual methods since it cant register for any
         ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_LOST_IP, &WifiManager::ipEventHandlerWrapper, this));
-
-        initAccesspoint();
+        
+        //TODO officcial example sets storage like this but I have flash which is default according to this function description
+        //ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+        
+        connectToAccesspoint();
     }
-
-    void WifiManager::initAccesspoint(){
+    
+    void WifiManager::connectToAccesspoint(){
         if(networkIterator == this->credentials.end()) {
             LOG.info("End of Network list reached. Starting over.");
             networkIterator = this->credentials.begin();
         }
         initWifiStationConfig(networkIterator->getSsid(), networkIterator->getPassphrase());
-        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifiConfig) );
-        ESP_ERROR_CHECK(esp_wifi_start());
+        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
+        ESP_ERROR_CHECK(esp_wifi_start());//TODO now it shall be called only once???
+
+        esp_err_t ret = esp_wifi_connect();
+        if (ret != ESP_OK) {
+            LOG.error("WiFi connect failed! ret:%x", ret);
+            started = false;
+        }
         started = true;
 
         LOG.info("Wifi station started.");
@@ -108,8 +125,14 @@ namespace cima::system::network {
     void WifiManager::tryNextNetwork() {
         ++networkIterator;
         connectionAttempts = 0;
-        ESP_ERROR_CHECK(esp_wifi_stop());
-        initAccesspoint();
+
+        //FIXME probably should be called only when disabling wifi completely, not just when swiching connection
+        ESP_ERROR_CHECK(esp_wifi_stop()); 
+        
+        //TODO sleep
+        
+
+        connectToAccesspoint();
     }
 
     void WifiManager::ipEventHandler(int32_t event_id, void* event_data) {

@@ -38,7 +38,7 @@ public:
     void addNetwork(const WifiCredentials &credentials);
 
     void start();
-    void initAccesspoint();
+    void connectToAccesspoint();
     void tryNextNetwork();
 
     bool isStarted();
