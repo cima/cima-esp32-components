@@ -15,5 +15,7 @@ namespace cima::system {
 
         bool enableInterrupts();
         void disableInterrupts();
+
+        void createDefaultEventLoop();
     };
 }

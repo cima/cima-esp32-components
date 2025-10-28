@@ -23,6 +23,7 @@ namespace cima::system {
         ledc_timer.timer_num = LEDC_TIMER_0; //TODO do proměnný
         ledc_timer.clk_cfg = LEDC_AUTO_CLK;
         ledc_timer.freq_hz = 5000;
+        ledc_timer.deconfigure = false;
 
         ledc_channel_config(&ledc_channel);
         ledc_timer_config(&ledc_timer);

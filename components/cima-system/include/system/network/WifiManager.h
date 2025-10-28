@@ -45,6 +45,8 @@ public:
     bool isStarted();
     virtual bool isConnected();
 
+    void stop();
+    
 private:
     void wifiEventHandler(int32_t event_id, void* event_data);
     void ipEventHandler(int32_t event_id, void* event_data);
