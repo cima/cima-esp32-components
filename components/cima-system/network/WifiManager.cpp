@@ -5,7 +5,6 @@
 
 #include <esp_system.h>
 #include <esp_wifi.h>
-#include <esp_event.h>
 
 #include <lwip/err.h>
 #include <lwip/sys.h>
@@ -41,9 +40,6 @@ namespace cima::system::network {
         //esp_wifi_init(); //TODO prozkoumat jak se to má dělat https://github.com/espressif/esp-idf/blob/master/examples/common_components/protocol_examples_common/wifi_connect.c#L109
         ESP_ERROR_CHECK(esp_wifi_init(&firmwareWifiConfig));
         
-        // TODO this shall be somwhere centrally managed as it is global loop, not just wifi loop
-        ESP_ERROR_CHECK(esp_event_loop_create_default());
-        
         //TODO offered by copilot
         esp_netif_t* netInterface = esp_netif_create_default_wifi_sta();
         
@@ -67,7 +63,7 @@ namespace cima::system::network {
         initWifiStationConfig(networkIterator->getSsid(), networkIterator->getPassphrase());
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifiConfig) );
-        ESP_ERROR_CHECK(esp_wifi_start());//TODO now it shall be called only once???
+        ESP_ERROR_CHECK(esp_wifi_start());
 
         esp_err_t ret = esp_wifi_connect();
         if (ret != ESP_OK) {
@@ -161,6 +157,12 @@ namespace cima::system::network {
 
     bool WifiManager::isConnected(){
         return connected;
+    }
+
+    void WifiManager::stop(){
+        ESP_ERROR_CHECK(esp_wifi_stop());
+        ESP_ERROR_CHECK(esp_wifi_deinit());
+        started = false;
     }
 
     void WifiManager::wifiEventHandlerWrapper(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
